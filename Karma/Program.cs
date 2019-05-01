@@ -9,7 +9,7 @@ namespace Karma
 {
     public class Program
     {
-        private readonly DiscordSocketClient _client;
+        private readonly DiscordShardedClient _client;
         private readonly IConfiguration _config;
 
         // Discord.Net heavily utilizes TAP for async, so we create
@@ -18,13 +18,18 @@ namespace Karma
 
         private Program()
         {
-            // It is recommended to Dispose of a client when you are finished
-            // using it, at the end of your app's lifetime.
-            _client = new DiscordSocketClient();
             _config = BuildConfig();
+            _client = new DiscordShardedClient(
+                new DiscordSocketConfig
+                {
+                    TotalShards = 1,
+                    LogLevel = LogSeverity.Info,
+                    DefaultRetryMode = RetryMode.AlwaysRetry
+                }
+            );
 
             _client.Log += LogAsync;
-            _client.Ready += ReadyAsync;
+            _client.ShardReady += ReadyAsync;
             _client.MessageReceived += MessageReceivedAsync;
         }
 
@@ -46,11 +51,11 @@ namespace Karma
 
         // The Ready event indicates that the client has opened a
         // connection and it is now safe to access the cache.
-        private async Task ReadyAsync()
+        private async Task ReadyAsync(DiscordSocketClient client)
         {
             Console.WriteLine($"{_client.CurrentUser} is connected!");
             
-            await _client.SetGameAsync($"{_client.Guilds.Count.ToString()} Guilds!", null, ActivityType.Watching);
+            await client.SetGameAsync($"{_client.Guilds.Count.ToString()} Guilds!", null, ActivityType.Watching);
         }
 
         // This is not the recommended way to write a bot - consider
