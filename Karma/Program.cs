@@ -1,15 +1,15 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
+using Karma.Core;
+using Karma.Core.Configuration;
 
 namespace Karma
 {
     public class Program
     {
-        private readonly IConfiguration _config;
+        private MasterConfig _config;
         private readonly DiscordShardedClient _client = new DiscordShardedClient(
             new DiscordSocketConfig
             {
@@ -25,7 +25,6 @@ namespace Karma
 
         private Program()
         {
-            _config = BuildConfig();
             
             _client.Log += LogAsync;
             _client.ShardReady += ReadyAsync;
@@ -33,10 +32,12 @@ namespace Karma
 
         private async Task StartAsync()
         {
+            Directories.CheckDirectories();
+            _config = MasterConfig.Load();
             _manager = new Manager(_config, _client);
             _manager.Boot();
             
-            await _client.LoginAsync(TokenType.Bot, _config["token"]);
+            await _client.LoginAsync(TokenType.Bot, _config.DiscordConfig.Token);
             await _client.StartAsync();
 
             await Task.Delay(-1);
@@ -53,14 +54,5 @@ namespace Karma
             Console.WriteLine($"{_client.CurrentUser} is connected!");
             await client.SetGameAsync($"{_client.Guilds.Count.ToString()} Guilds!", null, ActivityType.Watching);
         }
-        
-        private IConfiguration BuildConfig()
-        {
-            return new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("config.json")
-                .Build();
-        }
-        
     }
 }

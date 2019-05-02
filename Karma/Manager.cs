@@ -9,6 +9,7 @@ using Karma.Core.Factories;
 using Karma.Core.TypeReaders;
 using Karma.Core.Pipelines;
 using Karma.Core.Parsers;
+using Karma.Core.Configuration;
 using Karma.Events;
 using Karma.Events.OnMessageEvents;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,14 +18,16 @@ namespace Karma
 {
     public class Manager
     {
-        private readonly IConfiguration _config;
+        private readonly MasterConfig _config;
         private readonly DiscordShardedClient _client;
         
+        private BotLog _botLog;
         private CommandService<SystemContext> _commandService;
         private EventLoader _eventLoader;
+        private Analytics _analytics;
         private IServiceProvider _serviceProvider;
         
-        public Manager(IConfiguration config, DiscordShardedClient client)
+        public Manager(MasterConfig config, DiscordShardedClient client)
         {
             _config = config;
             _client = client;
@@ -39,9 +42,13 @@ namespace Karma
                 )
                 .AddPipeline<PrefixPipeline>()
                 .AddCommandParser<SystemCommandParser<SystemContext>>()
+                .AddPipeline<PreconditionPipeline>()
                 .AddPipeline<FinalizePipeline>()
                 .BuildCommandService();
 
+            _botLog = new BotLog(_config, _client);
+            _analytics = new Analytics(_botLog);
+            
             _serviceProvider = new ServiceCollection()
                 .AddSingleton(_config)
                 .AddSingleton(_client)
@@ -50,7 +57,7 @@ namespace Karma
             
             _eventLoader = new EventLoader()
                 .LoadEvent(new OnMessageReceivedEvent(_client)
-                    .AddSubEvent(new OnCommandSubEvent(_client, _commandService, _serviceProvider))
+                    .AddSubEvent(new OnCommandSubEvent(_client, _commandService, _analytics, _botLog, _serviceProvider))
                 );
         }
     }

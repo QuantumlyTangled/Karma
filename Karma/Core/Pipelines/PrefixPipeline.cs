@@ -3,29 +3,33 @@ using System.Threading.Tasks;
 using Discord;
 using Finite.Commands;
 using Karma.Core.Results;
-using Microsoft.Extensions.Configuration;
+using Karma.Core.Configuration;
 
 namespace Karma.Core.Pipelines
 {
     public class PrefixPipeline : IPipeline
     {
-        private readonly IConfiguration _config;
+        private readonly MasterConfig _config;
         
-        public PrefixPipeline(IConfiguration config) => _config = config;
+        public PrefixPipeline(MasterConfig config) => _config = config;
         
         public async Task<IResult> ExecuteAsync(CommandExecutionContext context, Func<Task<IResult>> next)
         {
             var ctx = context.Context as SystemContext;
             var msg = (IUserMessage) ctx.Message;
             var content = msg.Content;
+            var userMention = $"{ctx.Client.CurrentUser.Mention} ";
+            var guildMention = userMention.Replace("!", "");
 
             if (msg.Author.IsBot || msg.Author.IsWebhook)
                 return new PrefixResult();
 
-            if (content.StartsWith(_config["prefix"], StringComparison.CurrentCultureIgnoreCase))
-                return await ValidPrefixExecuteAsync(context, _config["prefix"].Length, msg, next);
-            if (content.StartsWith(ctx.Client.CurrentUser.Mention, StringComparison.CurrentCultureIgnoreCase))
-                return await ValidPrefixExecuteAsync(context, ctx.Client.CurrentUser.Mention.Length, msg, next);
+            if (content.StartsWith(_config.DiscordConfig.Prefix, StringComparison.CurrentCultureIgnoreCase))
+                return await ValidPrefixExecuteAsync(context, _config.DiscordConfig.Prefix.Length, msg, next);
+            if (content.StartsWith(userMention, StringComparison.CurrentCultureIgnoreCase))
+                return await ValidPrefixExecuteAsync(context, userMention.Length, msg, next);
+            if (content.StartsWith(guildMention, StringComparison.CurrentCultureIgnoreCase))
+                return await ValidPrefixExecuteAsync(context, guildMention.Length, msg, next);
             return new PrefixResult();
         }
         

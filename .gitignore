@@ -2,3 +2,5 @@
 config.json
 bin/
 obj/
+log_bot/
+log_console/
