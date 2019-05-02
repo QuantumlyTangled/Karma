@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
+using Discord;
 using Discord.WebSocket;
 using Finite.Commands;
 using Finite.Commands.Extensions;
-using Microsoft.Extensions.Configuration;
 using Karma.Core;
 using Karma.Core.Factories;
 using Karma.Core.TypeReaders;
@@ -22,6 +22,7 @@ namespace Karma
         private readonly DiscordShardedClient _client;
         
         private BotLog _botLog;
+        private ServerCount _serverCount;
         private CommandService<SystemContext> _commandService;
         private EventLoader _eventLoader;
         private Analytics _analytics;
@@ -47,18 +48,24 @@ namespace Karma
                 .BuildCommandService();
 
             _botLog = new BotLog(_config, _client);
+            _serverCount = new ServerCount(_client);
             _analytics = new Analytics(_botLog);
             
             _serviceProvider = new ServiceCollection()
                 .AddSingleton(_config)
                 .AddSingleton(_client)
+                .AddSingleton(_botLog)
+                .AddSingleton(_analytics)
                 .AddSingleton(_commandService)
+                .AddSingleton<IDiscordClient>(_client)
                 .BuildServiceProvider();
             
             _eventLoader = new EventLoader()
                 .LoadEvent(new OnMessageReceivedEvent(_client)
                     .AddSubEvent(new OnCommandSubEvent(_client, _commandService, _analytics, _botLog, _serviceProvider))
                 );
+            
+            _serverCount.Start();
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Karma.Commands
     [Alias("neko")]
     public class Neko : SystemBase
     {
-        [Command, NSFW, BotPerms(ChannelPermission.AttachFiles)]
+        [Command, BotPerms(ChannelPermission.AttachFiles)]
         public async Task NekoAsync()
         {
             var neko = await NekosLife.Client.Image_v3.Neko();

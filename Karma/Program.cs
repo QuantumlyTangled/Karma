@@ -39,6 +39,8 @@ namespace Karma
             
             await _client.LoginAsync(TokenType.Bot, _config.DiscordConfig.Token);
             await _client.StartAsync();
+            await _client.SetStatusAsync(UserStatus.Idle);
+            await _client.SetGameAsync("Training...");
 
             await Task.Delay(-1);
         }
@@ -52,7 +54,6 @@ namespace Karma
         private async Task ReadyAsync(DiscordSocketClient client)
         {
             Console.WriteLine($"{_client.CurrentUser} is connected!");
-            await client.SetGameAsync($"{_client.Guilds.Count.ToString()} Guilds!", null, ActivityType.Watching);
         }
     }
 }
