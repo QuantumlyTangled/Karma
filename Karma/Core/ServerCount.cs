@@ -22,13 +22,11 @@ namespace Karma.Core
             _timer.AutoReset = true;
             _timer.Elapsed += (sender, args) => Task.Factory.StartNew(() => UpdateServerCountAsync());
             _timer.Start();
-            _client.SetStatusAsync(UserStatus.Online).GetAwaiter();
         }
 
         private void UpdateServerCountAsync() {
             if (PreviousGuildCount == _client.Guilds.Count) return;
             PreviousGuildCount = _client.Guilds.Count;
-            _client.SetStatusAsync(UserStatus.Online).GetAwaiter();
             _client.SetGameAsync($"{PreviousGuildCount.ToString()} Guilds!", type:ActivityType.Watching).GetAwaiter();
         }
     }

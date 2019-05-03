@@ -55,12 +55,14 @@ namespace Karma
                 .AddSingleton(_config)
                 .AddSingleton(_client)
                 .AddSingleton(_botLog)
+                .AddSingleton(_serverCount)
                 .AddSingleton(_analytics)
                 .AddSingleton(_commandService)
                 .AddSingleton<IDiscordClient>(_client)
                 .BuildServiceProvider();
             
             _eventLoader = new EventLoader()
+                .LoadEvent(new OnReadyEvent(_client, _serverCount))
                 .LoadEvent(new OnMessageReceivedEvent(_client)
                     .AddSubEvent(new OnCommandSubEvent(_client, _commandService, _analytics, _botLog, _serviceProvider))
                 );

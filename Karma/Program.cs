@@ -27,7 +27,6 @@ namespace Karma
         {
             
             _client.Log += LogAsync;
-            _client.ShardReady += ReadyAsync;
         }
 
         private async Task StartAsync()
@@ -39,8 +38,6 @@ namespace Karma
             
             await _client.LoginAsync(TokenType.Bot, _config.DiscordConfig.Token);
             await _client.StartAsync();
-            await _client.SetStatusAsync(UserStatus.Idle);
-            await _client.SetGameAsync("Training...");
 
             await Task.Delay(-1);
         }
@@ -49,11 +46,6 @@ namespace Karma
         {
             Console.WriteLine(log.ToString());
             return Task.CompletedTask;
-        }
-
-        private async Task ReadyAsync(DiscordSocketClient client)
-        {
-            Console.WriteLine($"{_client.CurrentUser} is connected!");
         }
     }
 }
