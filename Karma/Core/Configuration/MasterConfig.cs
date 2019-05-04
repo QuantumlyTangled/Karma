@@ -59,6 +59,12 @@ namespace Karma.Core.Configuration
             DiscordConfig.AssignMasterGuild(guildId);
             Save();
         }
+        
+        public void RemoveMasterGuild()
+        {
+            DiscordConfig.PurgeMasterGuild();
+            Save();
+        }
 
         public void AssignBotLogChannel(ulong channelId, BotLogType logType)
         {

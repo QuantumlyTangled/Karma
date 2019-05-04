@@ -34,6 +34,9 @@ namespace Karma.Core.Configuration
         
         public void AssignMasterGuild(ulong guildId)
             => MasterGuildId = guildId;
+            
+        public void PurgeMasterGuild()
+            => MasterGuildId = 0;
         
         public bool AssignAdmin(ulong userId)
         {

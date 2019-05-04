@@ -3,6 +3,7 @@ using Finite.Commands;
 using Discord;
 using Discord.WebSocket;
 using Karma.Core;
+using Karma.Core.Attributes;
 using Karma.Core.Configuration;
 
 namespace Karma.Commands
@@ -19,9 +20,20 @@ namespace Karma.Commands
         }
         
         [Command("master")]
-        public async Task MasterAsync() {
-            _config.AssignMasterGuild(Context.Guild.Id);
-            await ReplyAsync($"It seems that the class room has moved to a place named {Format.Bold(Context.Guild.Name)}.");
+        public async Task MasterAsync([Remainder] string action) {
+            if (action == "set")
+            {
+                _config.AssignMasterGuild(Context.Guild.Id);
+                await ReplyAsync($"It seems that the classroom has moved to a place named {Format.Bold(Context.Guild.Name)}.");
+                return;
+            }
+            if (action == "remove")
+            {
+                _config.RemoveMasterGuild();
+                await ReplyAsync("Everything must come to an end. But I didnt expect this. ¯\\_(ツ)_/¯");
+                return;
+            }
+            await ReplyAsync("You really must be un-determined to not provide an action. Such a shame.");
         }
     }
 }

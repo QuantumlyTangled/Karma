@@ -13,7 +13,7 @@ namespace Karma
         private readonly DiscordShardedClient _client = new DiscordShardedClient(
             new DiscordSocketConfig
             {
-                TotalShards = 1,
+                TotalShards = 2,
                 LogLevel = LogSeverity.Info,
                 DefaultRetryMode = RetryMode.AlwaysRetry
             }
