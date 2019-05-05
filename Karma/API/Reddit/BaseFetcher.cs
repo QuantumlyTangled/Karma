@@ -1,7 +1,6 @@
-using System;
-using System.IO;
 using System.Net.Http;
-using System.Web;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Karma.API.Reddit
 {
@@ -14,17 +13,14 @@ namespace Karma.API.Reddit
             _sub = subReddit;
         }
         
-        public Stream FetchAllPosts()
+        public Response FetchAllPosts()
         {
-            Stream stream;
-            var builder = new UriBuilder($"https://www.reddit.com/r/{_sub}.json");
-            var query = HttpUtility.ParseQueryString(builder.Query);
-            query["sort"] = "top";
-            query["t"] = "week";
-            query["limit"] = "800";
-            builder.Query = query.ToString();
-            using (var client = new HttpClient()) { stream = client.GetStreamAsync(builder.ToString()).GetAwaiter().GetResult(); }
-            return stream;
+            string jsonString;
+            using(var client = new HttpClient())
+            {
+                jsonString = client.GetStringAsync($"https://www.reddit.com/r/{_sub}.json?limit=800").GetAwaiter().GetResult();
+            }
+            return JsonConvert.DeserializeObject<Response>(jsonString);
         }
     }
 }

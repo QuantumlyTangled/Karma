@@ -49,7 +49,6 @@ namespace Karma.Core.Parsers
             {
                 if (GetArgumentsForMatch(executionContext, match, out object[] arguments))
                 {
-                    // TODO: maybe I should migrate this to a parser result?
                     executionContext.Command = match.Command;
                     executionContext.Arguments = arguments;
 
