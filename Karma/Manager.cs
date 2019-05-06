@@ -22,7 +22,6 @@ namespace Karma
         private readonly DiscordShardedClient _client;
         
         private BotLog _botLog;
-        private ServerCount _serverCount;
         private CommandService<SystemContext> _commandService;
         private EventLoader _eventLoader;
         private Analytics _analytics;
@@ -48,26 +47,24 @@ namespace Karma
                 .BuildCommandService();
 
             _botLog = new BotLog(_config, _client);
-            _serverCount = new ServerCount(_client);
             _analytics = new Analytics(_botLog);
             
             _serviceProvider = new ServiceCollection()
                 .AddSingleton(_config)
                 .AddSingleton(_client)
                 .AddSingleton(_botLog)
-                .AddSingleton(_serverCount)
                 .AddSingleton(_analytics)
                 .AddSingleton(_commandService)
                 .AddSingleton<IDiscordClient>(_client)
                 .BuildServiceProvider();
             
             _eventLoader = new EventLoader()
-                .LoadEvent(new OnReadyEvent(_client, _serverCount))
+                .LoadEvent(new OnReadyEvent(_client))
+                .LoadEvent(new OnJoinedGuildEvent(_client))
+                .LoadEvent(new OnLeftGuildEvent(_client))
                 .LoadEvent(new OnMessageReceivedEvent(_client)
                     .AddSubEvent(new OnCommandSubEvent(_client, _commandService, _analytics, _botLog, _serviceProvider))
                 );
-            
-            _serverCount.Start();
         }
     }
 }

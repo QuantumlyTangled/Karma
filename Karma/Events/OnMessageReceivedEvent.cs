@@ -15,7 +15,7 @@ namespace Karma.Events
         }
 
         public void Load() {
-            _client.MessageReceived += (message) => Task.Factory.StartNew(() => ExecuteReceivedAsync(message));
+            _client.MessageReceived += message => Task.Factory.StartNew(() => ExecuteReceivedAsync(message));
             _client.MessageUpdated += (oldMessage, newMessage, channel) => Task.Factory.StartNew(() => ExecuteUpdatedAsync(newMessage));
         }
 

@@ -3,23 +3,19 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using Karma.Core;
-using Karma.Core.Configuration;
 
 namespace Karma.Events
 {
     public class OnReadyEvent : IEvent
     {
         private readonly DiscordShardedClient _client;
-        private readonly ServerCount _count;
         
         private bool _initialized;
         private readonly Dictionary<int, bool> _shardsReady = new Dictionary<int, bool>();
         
-        public OnReadyEvent( DiscordShardedClient client, ServerCount serverCount)
+        public OnReadyEvent( DiscordShardedClient client)
         {
             _client = client;
-            _count = serverCount;
         }
         
         public void Load() => _client.ShardReady += socketClient => Task.Factory.StartNew(() => ExecuteAsync(socketClient));
@@ -33,7 +29,6 @@ namespace Karma.Events
             if (_shardsReady.Count < _client.Shards.Count) return;
 
             _initialized = true;
-            _count.PreviousGuildCount = _client.Guilds.Count;
             
             Console.WriteLine($"[{sClient.ShardId.ToString()}] {_client.CurrentUser} is connected!");
 
