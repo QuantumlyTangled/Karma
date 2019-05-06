@@ -9,25 +9,25 @@ using Karma.Core.Attributes;
 
 namespace Karma.Commands
 {
-    [Alias("meme", "memes")]
-    public class Meme : SystemBase
+    [Alias("dankmeme", "dankmemes")]
+    public class Dankmeme : SystemBase
     {
         private BaseFetcher _reddit;
         private Random _rand;
         
-        public Meme()
+        public Dankmeme()
         {
-            _reddit = new BaseFetcher("memes");
+            _reddit = new BaseFetcher("dankmemes");
             _rand = new Random();
         }
         
         [Command, BotPerms(ChannelPermission.AttachFiles)]
-        public async Task MemeAsync()
+        public async Task DankmemeAsync()
         {
             var all = _reddit.FetchAllPosts();
             var url = ReRunCheck(all);
             var img = NekosLife.RetrieveImage(url);
-            await Context.Channel.SendFileAsync(img, "MemeIsGut.png");
+            await Context.Channel.SendFileAsync(img, "MemeIsDaDankest.png");
         }
 
         public string ReRunCheck(Response res)
